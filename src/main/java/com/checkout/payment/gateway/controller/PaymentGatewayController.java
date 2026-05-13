@@ -38,7 +38,9 @@ public class PaymentGatewayController {
       @ApiResponse(responseCode = "200", description = "Payment found",
           content = @Content(schema = @Schema(implementation = GetPaymentResponse.class))),
       @ApiResponse(responseCode = "404", description = "Payment not found",
-          content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+          content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+      @ApiResponse(responseCode = "400", description = "Invalid value for parameter 'id' — must be a valid UUID",
+          content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
   })
   @GetMapping("/{id}")
   public ResponseEntity<GetPaymentResponse> getPaymentById(
@@ -47,11 +49,11 @@ public class PaymentGatewayController {
     return ResponseEntity.ok(paymentGatewayService.getPaymentById(id));
   }
 
-  @Operation(summary = "Process a payment", description = "Submits a card payment to the bank. Returns AUTHORIZED, DECLINED, or REJECTED based on validation and bank response.")
+  @Operation(summary = "Process a payment", description = "Submits a card payment to the bank. Returns AUTHORIZED, DECLINED based on validation and bank response.")
   @ApiResponses({
       @ApiResponse(responseCode = "201", description = "Payment processed (AUTHORIZED or DECLINED)",
           content = @Content(schema = @Schema(implementation = PostPaymentResponse.class))),
-      @ApiResponse(responseCode = "400", description = "Invalid payment request",
+      @ApiResponse(responseCode = "400", description = "Invalid payment request or malformed request body",
           content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
       @ApiResponse(responseCode = "500", description = "Unexpected server error",
           content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
