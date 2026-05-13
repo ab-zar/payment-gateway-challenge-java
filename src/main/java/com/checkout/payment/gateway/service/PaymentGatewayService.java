@@ -44,7 +44,7 @@ public class PaymentGatewayService {
   public PostPaymentResponse processPayment(PostPaymentRequest request) {
     validate(request);
 
-    String expiryDate = String.format("%02d/%d", request.getExpiryMonth(), request.getExpiryYear());
+    String expiryDate = request.getExpiryDate();
     BankPaymentRequest bankRequest = new BankPaymentRequest(
         request.getCardNumber(),
         expiryDate,
