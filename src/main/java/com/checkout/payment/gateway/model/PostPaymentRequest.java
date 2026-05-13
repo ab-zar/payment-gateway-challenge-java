@@ -1,41 +1,54 @@
 package com.checkout.payment.gateway.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serializable;
 
+@Schema(description = "Request body for processing a card payment")
 public class PostPaymentRequest implements Serializable {
 
-  @JsonProperty("card_number_last_four")
-  private int cardNumberLastFour;
+  @Schema(description = "Full card number (leading zeroes preserved). Masked in logs.", example = "2222405343248877")
+  @JsonProperty("card_number") // Full card number in order to process the payment, but we will mask it in logs and responses for security reasons.
+  private String cardNumber; // Card number might contain leading zeroes, so it should be String
+
+  @Schema(description = "Card expiry month (1–12)", example = "4")
   @JsonProperty("expiry_month")
-  private int expiryMonth;
+  private Integer expiryMonth; // To distinguish between 0 and null
+
+  @Schema(description = "Card expiry year (4-digit)", example = "2025")
   @JsonProperty("expiry_year")
-  private int expiryYear;
+  private Integer expiryYear; // To distinguish between 0 and null
+
+  @Schema(description = "ISO 4217 currency code. Supported: USD, GBP, EUR.", example = "USD")
   private String currency;
-  private int amount;
-  private int cvv;
 
-  public int getCardNumberLastFour() {
-    return cardNumberLastFour;
+  @Schema(description = "Payment amount in the smallest currency unit (e.g. cents)", example = "100")
+  private Integer amount; // To distinguish between 0 and null. Holds up to 2.1 billion. Integer should be enough for any realistic transaction
+
+  @Schema(description = "Card CVV / security code (leading zeroes preserved)", example = "123")
+  private String cvv; // Might have leading zeroes
+
+  public String getCardNumber() {
+    return cardNumber;
   }
 
-  public void setCardNumberLastFour(int cardNumberLastFour) {
-    this.cardNumberLastFour = cardNumberLastFour;
+  public void setCardNumber(String cardNumber) {
+    this.cardNumber = cardNumber;
   }
 
-  public int getExpiryMonth() {
+  public Integer getExpiryMonth() {
     return expiryMonth;
   }
 
-  public void setExpiryMonth(int expiryMonth) {
+  public void setExpiryMonth(Integer expiryMonth) {
     this.expiryMonth = expiryMonth;
   }
 
-  public int getExpiryYear() {
+  public Integer getExpiryYear() {
     return expiryYear;
   }
 
-  public void setExpiryYear(int expiryYear) {
+  public void setExpiryYear(Integer expiryYear) {
     this.expiryYear = expiryYear;
   }
 
@@ -47,19 +60,19 @@ public class PostPaymentRequest implements Serializable {
     this.currency = currency;
   }
 
-  public int getAmount() {
+  public Integer getAmount() {
     return amount;
   }
 
-  public void setAmount(int amount) {
+  public void setAmount(Integer amount) {
     this.amount = amount;
   }
 
-  public int getCvv() {
+  public String getCvv() {
     return cvv;
   }
 
-  public void setCvv(int cvv) {
+  public void setCvv(String cvv) {
     this.cvv = cvv;
   }
 
@@ -67,16 +80,18 @@ public class PostPaymentRequest implements Serializable {
   public String getExpiryDate() {
     return String.format("%d/%d", expiryMonth, expiryYear);
   }
-
+  // We still need to mask the card number in the logs.
   @Override
   public String toString() {
+    String maskedCard = (cardNumber != null && cardNumber.length() >= 4)
+        ? "************" + cardNumber.substring(cardNumber.length() - 4)
+        : "****";
     return "PostPaymentRequest{" +
-        "cardNumberLastFour=" + cardNumberLastFour +
+        "cardNumber='" + maskedCard + '\'' +
         ", expiryMonth=" + expiryMonth +
         ", expiryYear=" + expiryYear +
         ", currency='" + currency + '\'' +
         ", amount=" + amount +
-        ", cvv=" + cvv +
         '}';
   }
 }
