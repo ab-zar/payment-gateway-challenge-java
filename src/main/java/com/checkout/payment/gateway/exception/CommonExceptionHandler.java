@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -30,6 +31,12 @@ public class CommonExceptionHandler {
   public ResponseEntity<ErrorResponse> handleEventProcessingException(EventProcessingException ex) {
     LOG.error("Bank communication error: {}", ex.getMessage());
     return new ResponseEntity<>(new ErrorResponse(ex.getMessage()), HttpStatus.BAD_GATEWAY);
+  }
+
+  @ExceptionHandler(HttpMessageNotReadableException.class)
+  public ResponseEntity<ErrorResponse> handleMessageNotReadable(HttpMessageNotReadableException ex) {
+    LOG.warn("Malformed request body: {}", ex.getMessage());
+    return new ResponseEntity<>(new ErrorResponse("Malformed or unreadable request body"), HttpStatus.BAD_REQUEST);
   }
 
   @ExceptionHandler(MethodArgumentTypeMismatchException.class)

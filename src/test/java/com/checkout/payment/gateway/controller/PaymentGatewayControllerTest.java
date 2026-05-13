@@ -136,6 +136,34 @@ class PaymentGatewayControllerTest {
         .andExpect(jsonPath("$.message").value("Invalid value '5' for parameter 'id'"));
   }
 
+  @Test
+  void processPayment_withMalformedJson_returns400() throws Exception {
+    mvc.perform(MockMvcRequestBuilders.post(SERVICE_API)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("{not valid json}"))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.message").value("Malformed or unreadable request body"));
+  }
+
+  @Test
+  void processPayment_withWrongFieldType_returns400() throws Exception {
+    // amount is an Integer but a string is sent
+    String body = """
+        {
+          "card_number": "2222405343248877",
+          "expiry_month": 12,
+          "expiry_year": 2027,
+          "currency": "USD",
+          "amount": "not-a-number",
+          "cvv": "123"
+        }""";
+    mvc.perform(MockMvcRequestBuilders.post(SERVICE_API)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(body))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.message").value("Malformed or unreadable request body"));
+  }
+
   private PostPaymentRequest buildValidRequest() {
     PostPaymentRequest request = new PostPaymentRequest();
     request.setCardNumber("2222405343248877");
