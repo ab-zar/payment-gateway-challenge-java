@@ -11,7 +11,7 @@ public class PostPaymentResponse {
   @Schema(description = "Unique payment identifier", example = "a3b8f042-1e16-4f0a-a8f0-421e16df4201")
   private UUID id;
 
-  @Schema(description = "Payment status: AUTHORIZED, DECLINED, or REJECTED")
+  @Schema(description = "Payment status: AUTHORIZED, DECLINED")
   private PaymentStatus status;
 
   @Schema(description = "Last four digits of the card number", example = "8877")
